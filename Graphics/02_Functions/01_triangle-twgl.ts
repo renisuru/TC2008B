@@ -6,11 +6,11 @@
  * 2026-07-13
  */
 
-import * as twgl from 'twgl-base.js';
+import * as twgl from 'twgl-base.js'; // helper library 
 
 // Vertex Shader as a string
 const vsGLSL = `#version 300 es
-// Attributes
+// Attributes 
 in vec4 a_position;
 in vec4 a_color;
 
@@ -18,7 +18,7 @@ in vec4 a_color;
 out vec4 v_color;
 
 void main() {
-    gl_Position = a_position;
+    gl_Position = a_position; // existent variable
     v_color = a_color;
 }
 `;
@@ -76,9 +76,9 @@ function generateData(): twgl.Arrays {
             // Two components for the coordinates in X and Y
             numComponents: 2,
             data: new Float32Array([
-                 0.0,   0.7,
-                 0.5,  -0.7,
-                -0.5,  -0.7,
+                 0.0,   0.7, // x, y
+                 0.5,  -0.7, // x, y
+                -0.5,  -0.7, // x, y
             ]),
         },
         a_color: {
@@ -94,9 +94,9 @@ function generateData(): twgl.Arrays {
             */
             // To pass integer values, the type must be specified
             data: new Uint8Array([
-                255, 0, 0, 255,
-                0, 255, 0, 255,
-                0, 0, 255, 255,
+                255, 0, 255, 255,
+                255, 255, 0, 255,
+                0, 255, 255, 255,
             ]),
         },
     };
