@@ -50,7 +50,7 @@ function main(): void {
 
     const programInfo = twgl.createProgramInfo(gl, [vsGLSL, fsGLSL]);
 
-    const sides = 6;
+    const sides = 6; // esto hace que cambie la forma, los lados (vertices)
     const arrays = generateData(sides);
     const bufferInfo = twgl.createBufferInfoFromArrays(gl, arrays);
     const vao = twgl.createVAOFromBufferInfo(gl, programInfo, bufferInfo);
@@ -71,30 +71,30 @@ function generateData(sides: number): twgl.Arrays {
     const indexData: number[] = [];
 
     // Initialize the center vertex, at the origin and with white color
+    positionData.push(0); // insertamos 0 en el arreglo de posiciones pq son las coordenadas del centro
     positionData.push(0);
-    positionData.push(0);
-    colorData.push(1);
+    colorData.push(1); // insertamos color blanco para ese vertice
     colorData.push(1);
     colorData.push(1);
     colorData.push(1);
 
-    const angleStep = 2 * Math.PI / sides;
+    const angleStep = 2 * Math.PI / sides; // el circulo entre los lados
 
     // Loop over the sides to create the rest of the vertices
     for (let s = 0; s < sides; s++) {
-        const angle = angleStep * s;
+        const angle = angleStep * s; // calculamos angulo para el punto a crear
 
         // Generate the coordinates of the vertex
-        const x = Math.cos(angle);
+        const x = Math.cos(angle); // 1 en x, 0 en y
         const y = Math.sin(angle);
-        positionData.push(x);
+        positionData.push(x); // insertamos coordenadas en las posiciones
         positionData.push(y);
 
         // Generate a random color for the vertex
         colorData.push(Math.random());
         colorData.push(Math.random());
         colorData.push(Math.random());
-        colorData.push(1);
+        colorData.push(1); // opacidad
 
         // Define the triangles, in counter clockwise order
         indexData.push(0);

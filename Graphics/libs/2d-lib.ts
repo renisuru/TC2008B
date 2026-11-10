@@ -57,10 +57,12 @@ export class M3 {
     // transformation matrix
 
     static translation(v: Vec2): Mat3 {
+        let tx = v[X];
+        let ty = v[Y];
         return [
             1,  0,  0,
             0,  1,  0,
-            0,  0,  1,
+            tx,  ty,  1,
         ];
     }
 
@@ -113,7 +115,7 @@ export class M3 {
         // must be adjusted accordingly
 
         return [
-            1,  0,  0,
+            0,  0,  0,
             0,  1,  0,
             0,  0,  1,
         ];

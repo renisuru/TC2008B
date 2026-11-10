@@ -12,9 +12,12 @@ import * as twgl from 'twgl-base.js';
 
 // Vertex Shader as a string
 const vsGLSL = `#version 300 es
-in vec2 a_position;
+
+// attributes
+in vec2 a_position; 
 in vec4 a_color;
 
+// uniform
 uniform vec2 u_resolution;
 
 out vec4 v_color;
@@ -24,7 +27,7 @@ void main() {
     vec2 zeroToOne = a_position / u_resolution;
 
     // Convert from 0->1 to 0->2
-    vec2 zeroToTwo = zeroToOne * 2.0;
+    vec2 zeroToTwo = zeroToOne * 2.0; // multiplicacion de vector por un escalar
 
     // Convert from 0->2 to -1->1 (clip space)
     vec2 clipSpace = zeroToTwo - 1.0;
