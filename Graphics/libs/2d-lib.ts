@@ -41,6 +41,21 @@ export class V2 {
     //      returns the multiplication of each element of the vector by the scalar
     //      inside the 3rd Vec2
 
+
+    static subtract(u: Vec2, v: Vec2, dest?: Vec2): Vec2 {
+        dest = dest || new Float32Array(2);
+        dest[X] = u[X] - v[X];
+        dest[Y] = u[Y] - v[Y];
+        return dest;
+    }
+
+    static scale(u: Vec2, s: number, dest?: Vec2): Vec2 {
+        dest = dest || new Float32Array(2);
+        dest[X] = u[X] * s;
+        dest[Y] = u[Y] * s;
+        return dest;
+    }
+
 }
 
 // 3x3 matrices used for 2D transformations
@@ -67,17 +82,21 @@ export class M3 {
     }
 
     static rotation(angleRadians: number): Mat3 {
+        let c = Math.cos(angleRadians);
+        let s = Math.sin(angleRadians);
         return [
-            1,  0,  0,
-            0,  1,  0,
+            c,  s,  0,
+            -s,  c,  0,
             0,  0,  1,
         ];
     }
 
     static scale(v: Vec2): Mat3 {
+        let sx = v[X];
+        let sy = v[Y];
         return [
-            1,  0,  0,
-            0,  1,  0,
+            sx,  0,  0,
+            0,  sy,  0,
             0,  0,  1,
         ];
     }
@@ -87,18 +106,23 @@ export class M3 {
         const a00 = a[0 * 3 + 0];
         const a01 = a[0 * 3 + 1];
         const a02 = a[0 * 3 + 2];
+
         const a10 = a[1 * 3 + 0];
         const a11 = a[1 * 3 + 1];
         const a12 = a[1 * 3 + 2];
+
         const a20 = a[2 * 3 + 0];
         const a21 = a[2 * 3 + 1];
         const a22 = a[2 * 3 + 2];
+
         const b00 = b[0 * 3 + 0];
         const b01 = b[0 * 3 + 1];
         const b02 = b[0 * 3 + 2];
+
         const b10 = b[1 * 3 + 0];
         const b11 = b[1 * 3 + 1];
         const b12 = b[1 * 3 + 2];
+
         const b20 = b[2 * 3 + 0];
         const b21 = b[2 * 3 + 1];
         const b22 = b[2 * 3 + 2];
@@ -115,9 +139,17 @@ export class M3 {
         // must be adjusted accordingly
 
         return [
-            0,  0,  0,
-            0,  1,  0,
-            0,  0,  1,
+            a00 * b00 + a10 * b01 + a20 * b02,  // 0,0
+            a01 * b00 + a11 * b01 + a21 * b02,  // 0,1
+            a02 * b00 + a12 * b01 + a22 * b02,  // 0,2
+
+            a00 * b10 + a10 * b11 + a20 * b12,  // 1,0
+            a01 * b10 + a11 * b11 + a21 * b12,  // 1,1
+            a02 * b10 + a12 * b11 + a22 * b12,  // 1,2
+
+            a00 * b20 + a10 * b21 + a20 * b22,  // 2,0
+            a01 * b20 + a11 * b21 + a21 * b22,  // 2,1
+            a02 * b20 + a12 * b21 + a22 * b22,  // 2,2
         ];
     }
 
