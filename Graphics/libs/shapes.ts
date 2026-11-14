@@ -82,32 +82,47 @@ function shapeF_centered() : twgl.Arrays {
     return arrays;
 }
 
-function smiley(radius: number) : twgl.Arrays {
+function smiley(radius: number, sides: number = 30) : twgl.Arrays {
     // The arrays are initially empty
     const positionData: number[] = [];
     const colorData: number[] = [];
     const indexData: number[] = [];
 
+    const yellow = [1, 0.9725490196, 0.18039215686, 1];
+
     // TODO: Create you own shape for a smiley face
-    //  - Add coordinates as pairs of elements into the positionData array
-    //  - Add color values as 3 values (RBG) into the colorData array
+    //  - Add coordinates as pairs of elements into the positionData array (x, y)
+    //  - Add color values as 3 values (RBG) into the colorData array (r, g, b, a)
     //  - Add index for the order in which vertices are connected, 3 values for each triangle
     // HINT: You can use polar coordinates to define the positions of vertices,
     // using the radius and an angle. Then convert them to polar coordinates.
 
     // Sample data for a single yellow triangle. Replace with your values.
-    positionData.push(0, 100);
-    positionData.push(-120, -100);
-    positionData.push(120, -100);
-    colorData.push(0.9, 0.8, 0, 1);
-    colorData.push(0.9, 0.8, 0, 1);
-    colorData.push(0.9, 0.8, 0, 1);
+    
+    // Initialize the center vertex, at the origin and with yellow color
+    positionData.push(0,0); // center
+    //colorData.push(1, 0.9725490196, 0.18039215686);
+    colorData.push(...yellow); // ... -> spread operator, allows to unpack/expand elements from an array in this case
 
-    indexData.push(0, 2, 1);
+    // cuanto girar entre cada vertice, vuelta completa = 2 pi radianes
+    const angleStep = 2 * Math.PI / sides; // el circulo entre los lados
 
+    for ( let s = 0; s < sides; s++) {
+        const angle = angleStep * s; // calculamos angulo para el punto a crear
+        const x = Math.cos(angle) * radius;
+        const y = Math.sin(angle) * radius;
+        positionData.push(x);
+        positionData.push(y);
+        colorData.push(...yellow);
 
+        // triangulo de esta vuelta: (centro, vertice actual, vertice siguiente)
+        indexData.push(0); // centro (vertice 0)
+        indexData.push(s + 1); // el vertice que se acaba de crear en la vuelta
 
-
+        // el siguiente vertice del borde es s + 2
+        // en la ultima vuelta, s + 2 ya no existe, asi que regresamos al vertice 1 para cerrar el circulo
+        indexData.push(((s + 2) <= sides) ? (s + 2) : 1); // sintaxis: s + 2 <= sides?, si es verdad usa s + 2, si es falso usa 1 (condicion ? valor si es verdad : valor si es falso)
+    }
 
     // Build the final object with the arrays for positions, colors, and indices
     const arrays: twgl.Arrays = {

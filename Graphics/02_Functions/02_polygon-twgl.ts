@@ -66,9 +66,9 @@ function main(): void {
 // Create the data for the vertices of the polygon, as an object with two arrays
 function generateData(sides: number): twgl.Arrays {
     // The arrays are initially empty
-    const positionData: number[] = [];
-    const colorData: number[] = [];
-    const indexData: number[] = [];
+    const positionData: number[] = []; // where every vertex is located
+    const colorData: number[] = []; // what color is each vertex
+    const indexData: number[] = []; // which vertex form each triangle
 
     // Initialize the center vertex, at the origin and with white color
     positionData.push(0); // insertamos 0 en el arreglo de posiciones pq son las coordenadas del centro
@@ -78,6 +78,7 @@ function generateData(sides: number): twgl.Arrays {
     colorData.push(1);
     colorData.push(1);
 
+    // cuanto girar entre cada vertice, vuelta completa = 2 pi radianes
     const angleStep = 2 * Math.PI / sides; // el circulo entre los lados
 
     // Loop over the sides to create the rest of the vertices
