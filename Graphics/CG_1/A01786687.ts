@@ -1,8 +1,7 @@
 /*
- * Script to draw a 2D smiley face, and apply trasnformations to it
- *
- * Gilberto Echeverria
- * 2026-07-16
+ * Tarea CG 1: Cara 2D con transformaciones y selector del orden de las transformaciones
+ * Renata Uruchurtu Ransom - A01786687
+ * 2026-11-14
  */
 
 'use strict';
@@ -24,6 +23,12 @@ import fsGLSL from './fs_vertex_color.glsl?raw';
  * Specifies the objects that will be used, and the UI operations available.
  */
 class RotationScene extends Scene {
+
+    // declaramos la variable en la escena para que cualquier metodo pueda alcanzarla con this.settings
+    settings = {
+        order: 'scale -> translation -> rotation'
+    };
+
     constructor(gl: WebGL2RenderingContext) {
         super(gl, vsGLSL, fsGLSL);
 
@@ -79,16 +84,65 @@ class RotationScene extends Scene {
 
         // TODO: Multiply the matrices in the correct order to obtain the required results
 
-        modelTransforms = M3.multiply(scaleMatrix, modelTransforms);
+        // modelTransforms = M3.multiply(scaleMatrix, modelTransforms);
 
-        modelTransforms = M3.multiply(translateMatrix, modelTransforms);
+        // modelTransforms = M3.multiply(translateMatrix, modelTransforms);
 
-        modelTransforms = M3.multiply(pivotToCenter, modelTransforms);
+        // modelTransforms = M3.multiply(pivotToCenter, modelTransforms);
 
-        modelTransforms = M3.multiply(rotateMatrix, modelTransforms);
+        // modelTransforms = M3.multiply(rotateMatrix, modelTransforms);
 
-        modelTransforms = M3.multiply(centerToPivot, modelTransforms);
+        // modelTransforms = M3.multiply(centerToPivot, modelTransforms);
 
+        switch(this.settings.order) {
+            case 'scale -> rotation -> translation':
+                modelTransforms = M3.multiply(scaleMatrix, modelTransforms);
+
+                modelTransforms = M3.multiply(pivotToCenter, modelTransforms);
+                modelTransforms = M3.multiply(rotateMatrix, modelTransforms);
+                modelTransforms = M3.multiply(centerToPivot, modelTransforms);
+
+                modelTransforms = M3.multiply(translateMatrix, modelTransforms);
+                break;
+            case 'scale -> translation -> rotation':
+                modelTransforms = M3.multiply(scaleMatrix, modelTransforms);
+
+                modelTransforms = M3.multiply(translateMatrix, modelTransforms);
+
+                modelTransforms = M3.multiply(pivotToCenter, modelTransforms);
+                modelTransforms = M3.multiply(rotateMatrix, modelTransforms);
+                modelTransforms = M3.multiply(centerToPivot, modelTransforms);
+                break;
+
+            case 'translation -> scale -> rotation':
+                modelTransforms = M3.multiply(translateMatrix, modelTransforms);
+
+                modelTransforms = M3.multiply(scaleMatrix, modelTransforms);
+
+                modelTransforms = M3.multiply(pivotToCenter, modelTransforms);
+                modelTransforms = M3.multiply(rotateMatrix, modelTransforms);
+                modelTransforms = M3.multiply(centerToPivot, modelTransforms);
+                break;
+            case 'rotation -> translation -> scale':
+                modelTransforms = M3.multiply(pivotToCenter, modelTransforms);
+                modelTransforms = M3.multiply(rotateMatrix, modelTransforms);
+                modelTransforms = M3.multiply(centerToPivot, modelTransforms);
+
+                modelTransforms = M3.multiply(translateMatrix, modelTransforms);
+
+                modelTransforms = M3.multiply(scaleMatrix, modelTransforms);
+                break;
+
+            case 'rotation -> scale -> translation':
+                modelTransforms = M3.multiply(pivotToCenter, modelTransforms);
+                modelTransforms = M3.multiply(rotateMatrix, modelTransforms);
+                modelTransforms = M3.multiply(centerToPivot, modelTransforms);
+
+                modelTransforms = M3.multiply(scaleMatrix, modelTransforms);
+
+                modelTransforms = M3.multiply(translateMatrix, modelTransforms);
+                break;
+        }
 
 
         gl.useProgram(programInfo.program);
@@ -121,14 +175,27 @@ class RotationScene extends Scene {
 
     setupUI(): void {
         const { gl } = this;
-        const model = this.getObject('model');
+        const model = this.getObject('model'); 
         const pivot = this.getObject('pivot');
 
-        const gui = new GUI();
+        const gui = new GUI(); // creates empty GUI panel
 
-        const modelFolder = gui.addFolder('Model');
-
+        // gui.add( obj, 'size', [ 'Small', 'Medium', 'Large' ] ) -> example from lil-gui documentation
+        // passing the GUI settings object
+        gui.add(this.settings,'order', [
+            'scale -> rotation -> translation', 
+            'scale -> translation -> rotation', 
+            'translation -> scale -> rotation', 
+            'rotation -> translation -> scale', 
+            'rotation -> scale -> translation'
+        ]);
+        // model folder -> contains translation, rotation, scale, color
+        const modelFolder = gui.addFolder('Model'); 
+        
+        // translation folder -> contains translation for the face on x,y coords
         const traFolder = modelFolder.addFolder('Translation');
+
+        // sliders
         traFolder.add(model.transforms.t, 'x', 0, gl.canvas.width)
             .onChange((value: number) => {
                 model.transforms.t.x = value;
@@ -193,3 +260,30 @@ function main(): void {
 }
 
 main()
+
+
+/* 
+
+---- TRANSFORMATION ORDER ANALYSIS ----
+
+1. scale -> rotation -> translation
+   Rotation: rotates around a point located off-screen, not around the pivot
+   Scale: grows while remaining on its original position
+
+2. scale -> translation -> rotation (CORRECT ORDER, DEFAULT)
+   Rotation: rotates around the pivot
+   Scale: grows while remaining on its original position
+
+3. translation -> scale -> rotation
+   Rotation: rotates around the pivot
+   Scale: grows but also changes its position, moving to the right along x and upward along y
+
+4. rotation -> translation -> scale
+   Rotation: rotates around a point located off-screen, not around the pivot
+   Scale: grows but also changes its position, moving to the right along x and upward along y
+
+5. rotation -> scale -> translation
+   Rotation: rotates around a point located off-screen, not around the pivot
+   Scale: grows while remaining on its original position
+
+*/
