@@ -89,19 +89,17 @@ function smiley(radius: number, sides: number = 30) : twgl.Arrays {
     const indexData: number[] = [];
 
     const yellow = [1, 0.9725490196, 0.18039215686, 1];
+    const black = [0.1, 0.1, 0.1, 1];
 
-    // TODO: Create you own shape for a smiley face
+    // TODO: Create you own shape for a smiley face ✅
     //  - Add coordinates as pairs of elements into the positionData array (x, y)
     //  - Add color values as 3 values (RBG) into the colorData array (r, g, b, a)
     //  - Add index for the order in which vertices are connected, 3 values for each triangle
     // HINT: You can use polar coordinates to define the positions of vertices,
     // using the radius and an angle. Then convert them to polar coordinates.
 
-    // Sample data for a single yellow triangle. Replace with your values.
-    
     // Initialize the center vertex, at the origin and with yellow color
     positionData.push(0,0); // center
-    //colorData.push(1, 0.9725490196, 0.18039215686);
     colorData.push(...yellow); // ... -> spread operator, allows to unpack/expand elements from an array in this case
 
     // cuanto girar entre cada vertice, vuelta completa = 2 pi radianes
@@ -123,6 +121,96 @@ function smiley(radius: number, sides: number = 30) : twgl.Arrays {
         // en la ultima vuelta, s + 2 ya no existe, asi que regresamos al vertice 1 para cerrar el circulo
         indexData.push(((s + 2) <= sides) ? (s + 2) : 1); // sintaxis: s + 2 <= sides?, si es verdad usa s + 2, si es falso usa 1 (condicion ? valor si es verdad : valor si es falso)
     }
+
+/*  // OJO IZQUIERDO SIN FOR
+    positionData.push(-50 + 18, 50); // derecha, v31
+    positionData.push(-50, 50 + 18); // arriba, v32
+    positionData.push(-50 - 18, 50); // izq, v33
+    positionData.push(-50, 50 - 18); // abajo v34
+    colorData.push(...black);
+    colorData.push(...black);
+    colorData.push(...black);
+    colorData.push(...black);
+    indexData.push(31, 32, 33);
+    indexData.push(33, 34, 31); */
+
+    // ---- OJOS ----
+
+    // cada ojo tiene 21 vertices ( 1 centro + lados de vertices)
+    // ojo derecho va del vertice 31 al 51
+    // ojo izquierdo va del 52 al 72
+
+    const eyeRadius = 18;
+    const eyeSides = 20;
+    const eyeAngleStep = 2 * Math.PI / eyeSides; // calculamos angleStep del propio ojo para no usar el de la cara
+    const leftEyeStart = sides + 1; // 31
+    const rightEyeStart = leftEyeStart + eyeSides + 1; // 52
+
+    // OJO IZQUIERDO
+    positionData.push(-50,50);
+    colorData.push(...black);
+
+    for (let s = 0; s < eyeSides; s++) {
+        const angle = eyeAngleStep * s;
+        const x = -50 + Math.cos(angle) * eyeRadius;
+        const y = 50 + Math.sin(angle) * eyeRadius;
+        positionData.push(x);
+        positionData.push(y);
+        colorData.push(...black);
+
+        // triangulo de esta vuelta: (centro, vertice actual, vertice siguiente)
+        indexData.push(31); // centro (vertice 0)
+        indexData.push(31 + s + 1); // el vertice que se acaba de crear en la vuelta
+
+        // el siguiente vertice del borde es s + 2
+        // en la ultima vuelta, s + 2 ya no existe, asi que regresamos al vertice 1 para cerrar el circulo
+        indexData.push(((s + 2) <= eyeSides) ? (31 + s + 2) : (31 + 1)); // sintaxis: s + 2 <= sides?, si es verdad usa s + 2, si es falso usa 1 (condicion ? valor si es verdad : valor si es falso)
+    }
+
+    // OJO DERECHO
+
+    positionData.push(50,50);
+    colorData.push(...black);
+
+    for (let s = 0; s < eyeSides; s++) {
+        const angle = eyeAngleStep * s;
+        const x = 50 + Math.cos(angle) * eyeRadius;
+        const y = 50 + Math.sin(angle) * eyeRadius;
+        positionData.push(x);
+        positionData.push(y);
+        colorData.push(...black);
+        indexData.push(rightEyeStart);
+        indexData.push(rightEyeStart + s + 1); 
+        indexData.push(((s + 2) <= eyeSides) ? (rightEyeStart + s + 2) : (rightEyeStart + 1));
+    }
+
+    // ---- BOCA ----
+
+    const pink = [ 255/255, 135/255, 178/255, 1];
+    const mouthRadius = 70;
+    const mouthSides = 20;
+    const mouthAngleStep = Math.PI / mouthSides; // media vuelta para 20 , pi / lados
+    const mouthStart = rightEyeStart + eyeSides + 1;
+
+    positionData.push(0,-20);
+    colorData.push(...pink);
+
+    for (let s = 0; s <= mouthSides; s++) { // pi = 180, entonces el punto de salida es a la mitad del circulo en direccion hacia abajo
+        const angle = Math.PI + mouthAngleStep * s; // agregamos Math.PI para que empieze hacia abajo 
+        const x = 0 + Math.cos(angle) * mouthRadius;
+        const y = -20 + Math.sin(angle) * mouthRadius;
+        positionData.push(x);
+        positionData.push(y);
+        colorData.push(...pink);
+        //indexData.push(((s + 2) <= mouthSides) ? (mouthStart + s + 2) : (mouthStart + 1));
+        if ( s < mouthSides) { // cuando s no sea < a los lados, ya no se hace un nuevo triangulo
+            indexData.push(mouthStart); // centro de la boca
+            indexData.push(mouthStart + s + 1); // vertice de la vuelta actual
+            indexData.push(mouthStart + s + 2); // el siguiente vertice
+        }
+    }
+
+
 
     // Build the final object with the arrays for positions, colors, and indices
     const arrays: twgl.Arrays = {
