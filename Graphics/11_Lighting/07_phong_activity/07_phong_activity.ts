@@ -157,13 +157,28 @@ class PhongActivityScene extends Scene {
 
         gl.useProgram(programInfo.program);
 
-        // TODO: UNIFORMS (scene) -- send to the shader the data that
+        // TODO: UNIFORMS (scene) -- send to the shader the data that ✅
         // describes the scene and is shared by every object: the light
         // (position and the three colors) and the view position
         // (this.camera). All of it lives in this.lights[0] and
         // this.camera (see Light3D and Camera3D in ../../libs).
         //
         // twgl.setUniforms(programInfo, { /* ... */ });
+
+        const light = this.lights[0];
+        const camera = this.camera;
+
+        twgl.setUniforms(programInfo, {
+            u_lightWorldPosition: light.posArray,
+            u_viewWorldPosition: camera.posArray,
+            u_ambientLight : light.ambient,
+            u_diffuseLight : light.diffuse,
+            u_specularLight : light.specular
+
+            // el nombre de la izquierda tiene que ser exactamente igual al del uniform en el shader, letra por letra
+        });
+
+
 
         // Check for camera keys and update the camera position
         this.camera.checkKeys();
